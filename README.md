@@ -1,41 +1,48 @@
 # EC Social Renderer
 
-Renderer web del MediaLab de El Comercio para convertir un `job.json` editorial en piezas sociales listas para exportar.
+Renderer web del MediaLab de El Comercio para convertir un `job.json` editorial en piezas sociales listas para revisión y exportación.
 
-Versión actual: **v0.3.4**
-Estado: **prototipo funcional**
+**Versión actual:** `v0.3.6`  
+**Estado:** Prototipo funcional
 
 ---
 
 ## 1. Qué es
 
-EC Social Renderer es una aplicación web estática que recibe un archivo `job.json`, aplica una plantilla visual, permite ajustar textos e imágenes y exporta las piezas finales en PNG.
+EC Social Renderer es una aplicación web estática que recibe el contenido editorial generado por **EC Social Studio**, aplica una plantilla visual, permite ajustar textos e imágenes y exporta las piezas finales.
 
-La herramienta forma parte del flujo de **EC Social Studio**:
+Forma parte de este flujo:
 
-**EC Social Studio**
-- lee una nota;
-- define enfoque y objetivo;
-- estructura la historia;
-- redacta los textos;
-- genera sugerencias de imagen;
-- produce `job.json`.
+### EC Social Studio
 
-**EC Social Renderer**
-- carga `job.json`;
-- aplica una plantilla;
-- muestra una vista previa;
-- carga imágenes de ejemplo como placeholders;
-- permite reemplazar cada imagen;
-- permite editar textos;
-- permite ajustar crop, zoom y posición;
-- valida overflow;
-- exporta PNG, ZIP y `project.json`.
+Se encarga de:
+
+- leer una nota;
+- definir enfoque y objetivo;
+- estructurar la historia;
+- redactar los textos;
+- generar sugerencias de imagen;
+- producir un `job.json`.
+
+### EC Social Renderer
+
+Se encarga de:
+
+- recibir el JSON;
+- validar su estructura;
+- aplicar una plantilla;
+- mostrar una vista previa;
+- cargar imágenes de ejemplo como placeholders;
+- permitir reemplazar cada imagen;
+- permitir editar textos;
+- permitir ajustar crop, zoom y posición;
+- validar overflow;
+- exportar PNG, ZIP y `project.json`.
 
 Principio de arquitectura:
 
-> ChatGPT decide **qué contar y cómo estructurarlo**.  
-> El renderer decide **cómo se ve**.
+> EC Social Studio decide **qué contar y cómo estructurarlo**.  
+> EC Social Renderer decide **cómo se ve**.
 
 ---
 
@@ -48,23 +55,113 @@ La versión actual soporta:
 - Plantilla: **`EC_IG_GALERIA_01`**
 - Canvas: **1080 × 1350 px**
 - Tipografía: **Noto Serif**
+- Pegado directo de JSON como flujo principal
+- Carga de archivo `.json` como alternativa
+- Ejemplo integrado
+- Validación de JSON antes de generar piezas
 - Edición de texto en vivo
-- Carga de una imagen por pieza
-- Zoom y desplazamiento horizontal/vertical
-- Imágenes de ejemplo automáticas al cargar un JSON
+- Imágenes de ejemplo automáticas
+- Reemplazo de una imagen por pieza
+- Zoom
+- Desplazamiento horizontal
+- Desplazamiento vertical
 - Validación de overflow
 - Máximo de **8 líneas** en slides interiores
-- Exportación a PNG
+- Exportación individual a PNG
 - Exportación de galería a ZIP
 - Guardado de `project.json`
 
 ---
 
-## 3. Flujo de uso
+## 3. Flujo principal de uso
 
-### 3.1. Generar el `job.json`
+El flujo recomendado es:
 
-El archivo se genera desde EC Social Studio.
+```text
+EC Social Studio
+→ Generar JSON
+→ Copiar JSON
+→ EC Social Renderer
+→ Pegar JSON
+→ Generar piezas
+→ Reemplazar imágenes
+→ Ajustar texto e imagen
+→ Validar
+→ Exportar
+```
+
+---
+
+## 4. Entrada de JSON
+
+### 4.1. Pegar JSON
+
+El flujo principal consiste en copiar el JSON generado por EC Social Studio y pegarlo directamente en el renderer.
+
+La pantalla inicial contiene un campo:
+
+**Pega aquí el JSON generado por EC Social Studio**
+
+El renderer valida automáticamente el contenido.
+
+Si el JSON es válido:
+
+```text
+✓ JSON válido. Ya puedes generar las piezas.
+```
+
+y se habilita:
+
+**Generar piezas**
+
+Si el JSON es inválido, se muestra un mensaje y no se permite generar las piezas.
+
+---
+
+### 4.2. Bloques Markdown
+
+El renderer intenta tolerar JSON copiado desde un bloque Markdown.
+
+Por ejemplo:
+
+```text
+```json
+{
+  "schema_version": "1.0"
+}
+```
+```
+
+Las marcas de apertura y cierre se eliminan antes de interpretar el contenido.
+
+---
+
+### 4.3. Cargar archivo `.json`
+
+Se conserva como opción secundaria.
+
+Al cargar un archivo:
+
+- se valida;
+- su contenido aparece también en el campo de texto;
+- se generan las piezas.
+
+---
+
+### 4.4. Cargar ejemplo
+
+El botón **Cargar ejemplo** permite probar el renderer sin preparar un JSON externo.
+
+El ejemplo:
+
+- carga un JSON integrado;
+- genera las piezas;
+- asigna imágenes de prueba;
+- permite probar texto, crop, zoom, validación y exportación.
+
+---
+
+## 5. Estructura de `job.json`
 
 Ejemplo:
 
@@ -95,94 +192,29 @@ Ejemplo:
 }
 ```
 
----
+El JSON contiene decisiones editoriales.
 
-### 3.2. Cargar el JSON
+No debe contener:
 
-Al cargar cualquier `job.json`, el renderer:
-
-1. lee los textos;
-2. crea todas las piezas;
-3. aplica la plantilla;
-4. carga automáticamente imágenes de ejemplo como placeholders;
-5. muestra la galería ya compuesta.
-
-Las imágenes de ejemplo sirven únicamente como referencia visual.
-
-Mientras una pieza siga utilizando una imagen de ejemplo, el renderer muestra:
-
-`IMAGEN DE EJEMPLO · REEMPLAZAR`
-
-y bloquea la exportación final.
+- coordenadas;
+- crop;
+- zoom;
+- tamaños;
+- tipografías;
+- colores;
+- posiciones;
+- logos;
+- instrucciones de renderizado.
 
 ---
 
-### 3.3. Cambiar imágenes
+## 6. Imágenes de ejemplo
 
-Cada pieza muestra la acción:
+Al cargar cualquier JSON, el renderer asigna automáticamente imágenes de ejemplo como placeholders.
 
-**Cambiar imagen**
+Esto permite que el usuario vea inmediatamente una galería compuesta.
 
-Al seleccionar una imagen real:
-
-- reemplaza el placeholder;
-- la imagen se procesa localmente en el navegador;
-- se habilitan los controles de:
-  - zoom;
-  - desplazamiento horizontal;
-  - desplazamiento vertical.
-
-Las fotografías no pasan por ChatGPT y no necesitan subirse a un servidor.
-
----
-
-### 3.4. Editar textos
-
-Cada pieza tiene un campo de texto editable.
-
-Los cambios:
-
-- se reflejan inmediatamente en la vista previa;
-- vuelven a ejecutar la validación;
-- permiten corregir overflow sin volver a generar el JSON.
-
-El texto original puede restaurarse desde la misma tarjeta.
-
----
-
-## 4. Validación de texto
-
-La plantilla utiliza:
-
-- tamaño de fuente fijo;
-- márgenes fijos;
-- ancho de texto fijo;
-- área de texto fija.
-
-El renderer **no reduce automáticamente la tipografía** para hacer entrar un texto.
-
-### Portada
-
-La portada se valida según el espacio disponible de su caja de texto.
-
-### Slides interiores
-
-Regla actual:
-
-- hasta **8 líneas**: válido;
-- **9 líneas o más**: overflow.
-
-Cuando hay overflow:
-
-- aparece una advertencia;
-- la exportación de la galería queda bloqueada;
-- el texto debe editarse o dividirse.
-
----
-
-## 5. Imágenes de ejemplo
-
-El renderer utiliza esta carpeta:
+La carpeta utilizada es:
 
 ```text
 examples/photos/
@@ -193,11 +225,30 @@ examples/photos/
   photo_5.jpg
 ```
 
-Estas imágenes se asignan automáticamente al cargar un `job.json`.
+Si existen más de cinco piezas, las imágenes pueden reutilizarse de manera cíclica como placeholders.
 
-Si hay más de cinco piezas, se reutilizan de manera cíclica como placeholders.
+---
 
-Las imágenes de ejemplo se marcan internamente como:
+## 7. Reemplazo de imágenes
+
+Mientras una pieza utiliza una imagen de prueba, el renderer muestra:
+
+```text
+IMAGEN DE EJEMPLO · REEMPLAZAR
+```
+
+y la acción principal es:
+
+**Cambiar imagen**
+
+Cuando el usuario selecciona una imagen real:
+
+- reemplaza el placeholder;
+- se procesa localmente en el navegador;
+- se habilitan los controles de encuadre;
+- deja de considerarse imagen de ejemplo.
+
+Las imágenes se clasifican internamente con:
 
 ```json
 {
@@ -205,7 +256,7 @@ Las imágenes de ejemplo se marcan internamente como:
 }
 ```
 
-Cuando el usuario reemplaza una imagen:
+o:
 
 ```json
 {
@@ -213,13 +264,156 @@ Cuando el usuario reemplaza una imagen:
 }
 ```
 
-La exportación final solo se habilita cuando todas las imágenes requeridas han sido reemplazadas.
+---
+
+## 8. Controles de imagen
+
+Cada pieza permite:
+
+### Zoom
+
+Aumentar el acercamiento de la fotografía.
+
+### Horizontal
+
+Mover el encuadre hacia izquierda o derecha.
+
+### Vertical
+
+Mover el encuadre hacia arriba o abajo.
+
+Estos ajustes afectan únicamente al proyecto actual.
 
 ---
 
-## 6. Arquitectura
+## 9. Edición de texto
 
-La versión v0.3 separa el renderer en tres capas:
+Cada pieza tiene un campo editable.
+
+Los cambios:
+
+- se reflejan inmediatamente en el preview;
+- vuelven a ejecutar la validación;
+- permiten corregir overflow sin regresar a EC Social Studio.
+
+También existe la opción:
+
+**Restaurar texto**
+
+que recupera el texto original recibido en el JSON.
+
+---
+
+## 10. Validación de texto
+
+La plantilla utiliza:
+
+- tamaño de fuente fijo;
+- márgenes fijos;
+- ancho de texto fijo;
+- área de texto fija.
+
+El renderer **no reduce automáticamente la tipografía** para hacer entrar un texto.
+
+---
+
+### 10.1. Portada
+
+La portada se valida según el espacio disponible en la caja de titular.
+
+---
+
+### 10.2. Slides interiores
+
+Regla actual:
+
+- hasta **8 líneas**: válido;
+- **9 líneas o más**: overflow.
+
+Cuando hay overflow:
+
+- aparece una advertencia;
+- la exportación final queda bloqueada;
+- el texto debe editarse, condensarse o dividirse.
+
+---
+
+## 11. Reglas de exportación
+
+La exportación final se habilita únicamente cuando:
+
+- no existe overflow;
+- todas las piezas tienen imagen;
+- todas las imágenes de ejemplo han sido reemplazadas.
+
+Mientras exista un placeholder, el sistema informa cuántas imágenes faltan reemplazar.
+
+---
+
+## 12. Exportación
+
+### PNG individual
+
+Cada pieza puede descargarse por separado.
+
+Ejemplo:
+
+```text
+slide_01.png
+slide_02.png
+slide_03.png
+```
+
+### ZIP
+
+La galería completa puede descargarse como ZIP.
+
+Incluye:
+
+- todos los PNG;
+- `project.json`.
+
+---
+
+## 13. `project.json`
+
+El renderer puede guardar el estado editable del proyecto.
+
+Conserva:
+
+- el `job.json`;
+- textos editados;
+- nombre de archivo asignado a cada pieza;
+- zoom;
+- posición horizontal;
+- posición vertical.
+
+Ejemplo conceptual:
+
+```json
+{
+  "project_version": "1.0",
+  "renderer_version": "0.3.6",
+  "job": {},
+  "assignments": [
+    {
+      "item_id": 1,
+      "filename": "foto-portada.jpg",
+      "zoom": 1.25,
+      "x": 0.1,
+      "y": -0.2
+    }
+  ]
+}
+```
+
+Las imágenes no se incrustan dentro del JSON.
+
+---
+
+## 14. Arquitectura
+
+Desde la versión v0.3, el renderer se divide en tres capas:
 
 ```text
 CORE
@@ -227,9 +421,9 @@ FORMATOS
 PLANTILLAS
 ```
 
-### 6.1. Core
+---
 
-Responsable de funciones genéricas.
+## 15. Core
 
 ```text
 core/
@@ -238,61 +432,65 @@ core/
   export.js
 ```
 
-#### `core/renderer.js`
+### `core/renderer.js`
 
-Contiene utilidades genéricas de renderizado:
+Responsable de utilidades genéricas:
 
 - carga de imágenes;
 - medición de texto;
 - wrapping;
 - crop;
 - zoom;
-- posicionamiento de imagen.
+- posicionamiento.
 
-#### `core/project.js`
+### `core/project.js`
 
-Gestiona:
+Responsable de:
 
-- validación del `job.json`;
-- creación del proyecto interno;
+- validación del proyecto;
+- creación del estado interno;
 - serialización de `project.json`.
 
-#### `core/export.js`
+### `core/export.js`
 
-Gestiona:
+Responsable de:
 
-- descarga de PNG;
-- descarga de JSON;
-- generación de ZIP.
+- PNG;
+- JSON;
+- ZIP.
+
+El core no debe saber cómo se ve una fotogalería específica.
 
 ---
 
-### 6.2. Formatos
-
-Los formatos definen la estructura editorial.
+## 16. Formatos
 
 ```text
 formats/
   gallery.js
 ```
 
-El formato `fotogaleria` define:
+El formato define la estructura editorial.
 
-- estructura de slides;
+`fotogaleria` define:
+
+- slides;
 - tipos `cover` y `content`;
 - campos editables;
 - uso de imágenes;
 - normalización del JSON;
-- serialización;
-- ejemplo integrado.
+- serialización.
 
-La lógica de formato no define posiciones, tipografía ni diseño.
+El formato no debe controlar:
+
+- posiciones;
+- tipografía;
+- colores;
+- geometría.
 
 ---
 
-### 6.3. Plantillas
-
-Las plantillas definen la representación visual.
+## 17. Plantillas
 
 ```text
 templates/
@@ -300,28 +498,24 @@ templates/
     template.js
 ```
 
-La plantilla actual contiene:
+La plantilla define:
 
 - tamaño del canvas;
 - geometría;
-- posición de fotografía;
-- márgenes;
 - tipografía;
 - tamaños de fuente;
+- márgenes;
 - logos;
 - colores;
 - elementos gráficos;
-- render de portada;
-- render de interiores;
-- validación visual;
-- máximo de líneas;
-- nombres de archivos exportados.
-
-El core no debe conocer estos detalles.
+- render;
+- reglas de validación;
+- límites de líneas;
+- nombre de archivos exportados.
 
 ---
 
-## 7. Contrato de formato
+## 18. Contrato de formato
 
 Cada formato se registra en:
 
@@ -329,7 +523,7 @@ Cada formato se registra en:
 window.EC_FORMATS
 ```
 
-Debe implementar, como mínimo:
+Debe implementar:
 
 ```javascript
 validateJob(job)
@@ -349,7 +543,7 @@ getExampleJob()
 
 ---
 
-## 8. Contrato de plantilla
+## 19. Contrato de plantilla
 
 Cada plantilla se registra en:
 
@@ -376,11 +570,9 @@ validate({ ctx, item })
 exportFilename(item)
 ```
 
-Esto permite agregar nuevos diseños sin modificar el core.
-
 ---
 
-## 9. Estructura del proyecto
+## 20. Estructura del proyecto
 
 ```text
 /
@@ -417,16 +609,16 @@ Esto permite agregar nuevos diseños sin modificar el core.
 
 ---
 
-## 10. Assets
+## 21. Assets
 
-Los logos oficiales se encuentran en:
+Los logos oficiales están en:
 
 ```text
 assets/logo-ec-white.png
 assets/logo-ec-yellow.png
 ```
 
-Ambos son PNG con fondo transparente.
+Son PNG con fondo transparente.
 
 La plantilla actual utiliza:
 
@@ -437,7 +629,7 @@ Los assets no deben codificarse dentro de `app.js`.
 
 ---
 
-## 11. Plantilla actual: `EC_IG_GALERIA_01`
+## 22. Plantilla actual: `EC_IG_GALERIA_01`
 
 ### Canvas
 
@@ -445,121 +637,60 @@ Los assets no deben codificarse dentro de `app.js`.
 1080 × 1350 px
 ```
 
-### Interiores
-
-La composición actual utiliza:
-
-- fotografía en la parte superior;
-- bloque de texto inferior;
-- logo en la parte superior derecha;
-- filete inferior;
-- Noto Serif;
-- máximo de 8 líneas.
-
 ### Portada
 
-La portada utiliza:
+Incluye:
 
 - fotografía full bleed;
 - logo;
 - elemento gráfico negro/amarillo;
 - caja amarilla de titular.
 
-Todos estos valores pertenecen a la plantilla y no al motor general.
+### Interiores
+
+Incluyen:
+
+- fotografía superior;
+- bloque de texto inferior;
+- logo superior derecho;
+- filete inferior;
+- Noto Serif;
+- máximo de 8 líneas.
+
+Todos estos valores pertenecen a la plantilla, no al motor general.
 
 ---
 
-## 12. `project.json`
+## 23. Dependencias externas
 
-El renderer puede guardar el estado editable del proyecto.
+### Google Fonts
 
-`project.json` conserva:
+Se utiliza para cargar Noto Serif.
 
-- el `job.json`;
-- textos editados;
-- archivo asignado a cada pieza;
-- zoom;
-- posición horizontal;
-- posición vertical.
+### JSZip
 
-Ejemplo conceptual:
+Se utiliza para generar el ZIP directamente en el navegador.
 
-```json
-{
-  "project_version": "1.0",
-  "renderer_version": "0.3.0",
-  "job": {},
-  "assignments": [
-    {
-      "item_id": 1,
-      "filename": "foto-portada.jpg",
-      "zoom": 1.25,
-      "x": 0.1,
-      "y": -0.2
-    }
-  ]
-}
-```
-
-Las imágenes no se incrustan dentro del JSON.
+No se requiere backend.
 
 ---
 
-## 13. Exportación
+## 24. Privacidad y procesamiento
 
-El renderer permite:
+Las imágenes:
 
-### PNG individual
+- se cargan desde la computadora del usuario;
+- se procesan en el navegador;
+- no pasan por ChatGPT;
+- no se almacenan en un backend propio del proyecto.
 
-Cada pieza puede descargarse por separado.
-
-Ejemplo:
-
-```text
-slide_01.png
-slide_02.png
-slide_03.png
-```
-
-### ZIP
-
-La galería completa se descarga como ZIP e incluye:
-
-- todos los PNG;
-- `project.json`.
-
-La exportación se bloquea si:
-
-- hay overflow;
-- falta una imagen;
-- queda alguna imagen de ejemplo sin reemplazar.
+El renderer funciona como aplicación cliente.
 
 ---
 
-## 14. Cargar ejemplo
+## 25. Publicación en GitHub Pages
 
-El botón **Cargar ejemplo**:
-
-- carga un `job.json` de prueba incorporado;
-- asigna las imágenes de ejemplo;
-- permite probar la aplicación sin preparar archivos externos.
-
-En v0.3.3 el ejemplo está incorporado directamente en `app.js` para evitar dependencias innecesarias.
-
----
-
-## 15. Publicación en GitHub Pages
-
-El proyecto es completamente estático.
-
-No necesita:
-
-- backend;
-- base de datos;
-- servidor propio;
-- OpenAI API.
-
-Puede publicarse gratuitamente con GitHub Pages.
+El proyecto puede publicarse como sitio estático.
 
 Configuración:
 
@@ -571,56 +702,40 @@ Settings
 → /(root)
 ```
 
-Después de cada actualización, GitHub Pages vuelve a publicar el sitio.
+No necesita:
 
-Para evitar versiones antiguas en caché, `index.html` utiliza parámetros de versión en los archivos JS y CSS.
+- backend;
+- base de datos;
+- servidor propio;
+- OpenAI API.
+
+---
+
+## 26. Caché y versiones
+
+Para evitar que GitHub Pages o el navegador sirvan archivos antiguos, `index.html` utiliza parámetros de versión.
 
 Ejemplo:
 
 ```html
-<script src="app.js?v=0.3.3"></script>
+<script src="app.js?v=0.3.6"></script>
 ```
 
----
+Cada versión debe actualizar estos parámetros.
 
-## 16. Dependencias externas
-
-### Noto Serif
-
-La tipografía se carga desde Google Fonts.
-
-### JSZip
-
-Se utiliza para generar el ZIP de exportación desde el navegador.
-
-No existen dependencias de servidor.
+Después de publicar una versión nueva, conviene esperar a que GitHub Pages termine el deploy antes de probar.
 
 ---
 
-## 17. Privacidad y procesamiento
-
-Las imágenes seleccionadas por el usuario:
-
-- se cargan desde su computadora;
-- se procesan en el navegador;
-- no se envían a ChatGPT;
-- no se almacenan en un backend del proyecto.
-
-El renderer trabaja como una aplicación web cliente.
-
----
-
-## 18. Principios de desarrollo
+## 27. Principios de desarrollo
 
 ### Separación de responsabilidades
 
-El core no debe saber cómo se ve una pieza.
+- El core no sabe cómo se ve la pieza.
+- El formato define la estructura editorial.
+- La plantilla define la representación visual.
 
-El formato no debe controlar posiciones o tipografía.
-
-La plantilla no debe decidir la estructura editorial de la historia.
-
-### No reducir fuente automáticamente
+### No reducir tipografía
 
 Si un texto no cabe:
 
@@ -628,19 +743,19 @@ Si un texto no cabe:
 - se condensa;
 - se divide.
 
-La tipografía no se deforma para resolver overflow.
+Nunca se reduce automáticamente el tamaño de letra.
 
-### Mantener compatibilidad
+### Compatibilidad
 
 Una nueva plantilla debe poder agregarse sin modificar el core.
 
-Un nuevo formato debe poder agregarse sin convertir `app.js` en una cadena de condiciones específicas.
+Un nuevo formato debe poder agregarse sin convertir `app.js` en una colección de condiciones específicas.
 
 ---
 
-## 19. Próximos formatos previstos
+## 28. Próximos formatos previstos
 
-La arquitectura queda preparada para incorporar formatos como:
+La arquitectura está preparada para incorporar:
 
 ```text
 single_post
@@ -650,20 +765,18 @@ quote
 data_card
 ```
 
-Ejemplos de futuras plantillas:
+Posibles plantillas:
 
 ```text
 EC_IG_SINGLE_01
 EC_IG_STORY_01
 ```
 
-Cada formato puede tener una o varias plantillas.
-
 ---
 
-## 20. Flujo futuro multi-formato
+## 29. Flujo futuro multi-formato
 
-La arquitectura objetivo es:
+Arquitectura objetivo:
 
 ```text
 EC Social Studio
@@ -683,206 +796,194 @@ validación
 PNG / ZIP
 ```
 
-Esto permite que una misma plataforma produzca diferentes piezas sociales sin reconstruir el renderer para cada una.
-
 ---
 
-## 21. Control de versiones
+# 30. Historial de versiones
 
-### v0.1
+## v0.1 — Primer renderer funcional
 
-Primera prueba funcional del renderer.
+Primera versión operativa.
 
-### v0.2
-
-- carga de imagen por slide;
-- edición de texto en línea;
-- validación de overflow.
-
-### v0.2.2
-
-- máximo de 8 líneas en slides interiores.
-
-### v0.3
-
-Refactorización modular:
-
-- core;
-- formatos;
-- plantillas.
-
-### v0.3.2
-
-- imágenes de ejemplo automáticas al cargar cualquier JSON;
-- placeholders obligatorios de reemplazar antes de exportar.
-
-### v0.3.3
-
-- corrección de `Cargar ejemplo`;
-- ejemplo incorporado directamente en `app.js`;
-- actualización de parámetros de versión para evitar caché antigua.
-
----
-
-## 22. Criterio de funcionamiento correcto
-
-Para considerar estable una versión del renderer debe poder completarse este flujo:
-
-1. abrir la aplicación;
-2. pulsar **Cargar ejemplo**;
-3. visualizar todas las piezas con imágenes;
-4. cargar un `job.json`;
-5. visualizar sus textos con placeholders;
-6. editar un texto;
-7. provocar y corregir un overflow;
-8. reemplazar cada imagen;
-9. ajustar crop y zoom;
-10. comprobar que la exportación se habilita únicamente cuando el proyecto es válido;
-11. descargar un PNG;
-12. descargar el ZIP;
-13. guardar `project.json`.
-
----
-
-## 23. Estado del proyecto
-
-EC Social Renderer se encuentra actualmente en etapa de prototipo funcional.
-
-La prioridad inmediata es estabilizar completamente la fotogalería antes de incorporar nuevos formatos visuales.
-
-Una vez validado el renderer modular, el siguiente formato previsto es un **post simple de una sola imagen**, seguido por formatos de **historias de Instagram**.
-
-
----
-
-## Historial de versiones
-
-### v0.1 — Primer renderer funcional
-
-Primera versión operativa de EC Social Renderer.
+Incluyó:
 
 - carga de `job.json`;
 - renderizado de fotogalerías;
-- aplicación de la plantilla `EC_IG_GALERIA_01`;
+- plantilla `EC_IG_GALERIA_01`;
 - carga de fotografías;
-- controles de crop, zoom y desplazamiento;
-- exportación de PNG y ZIP.
+- crop;
+- zoom;
+- desplazamiento;
+- exportación PNG y ZIP.
 
 ---
 
-### v0.2 — Edición dentro del renderer
+## v0.2 — Edición dentro del renderer
 
-Se mejora el flujo de trabajo editorial.
+Mejoras del flujo editorial:
 
-- carga de fotografías por slide;
-- edición de texto directamente dentro de cada pieza;
-- actualización del preview en tiempo real;
+- carga de fotografía por slide;
+- edición de texto dentro de cada pieza;
+- preview en tiempo real;
 - detección de overflow;
-- tamaño de fuente y márgenes fijos;
-- exportación bloqueada cuando existen errores.
+- tipografía y márgenes fijos;
+- bloqueo de exportación con errores.
 
 ---
 
-### v0.2.1 — Correcciones de interfaz
+## v0.2.1 — Correcciones de interfaz
 
-- corrección de `Cargar ejemplo`;
-- visibilidad explícita del editor de texto;
-- visibilidad explícita del control para subir imágenes;
-- mejoras para evitar carga de versiones antiguas desde caché.
-
----
-
-### v0.2.2 — Regla de ocho líneas
-
-Se establece la primera regla visual dura de la plantilla.
-
-- máximo de 8 líneas para slides interiores;
-- 9 líneas o más generan overflow;
-- el renderer nunca reduce automáticamente la tipografía;
-- actualización del prompt editorial para producir textos más breves.
+- corrección del flujo de ejemplo;
+- editor de texto visible;
+- carga de imagen visible;
+- mejoras contra versiones antiguas almacenadas en caché.
 
 ---
 
-### v0.3 — Refactorización modular
+## v0.2.2 — Regla de ocho líneas
 
-El renderer deja de estar acoplado a una única fotogalería.
-
-Se separa en:
-
-- `core/`
-- `formats/`
-- `templates/`
-
-Responsabilidades:
-
-**Core**
-- renderizado genérico;
-- proyectos;
-- exportación.
-
-**Formats**
-- estructura editorial de cada formato.
-
-**Templates**
-- diseño;
-- geometría;
-- tipografía;
-- assets;
-- reglas de validación visual.
-
-Esta versión prepara el sistema para incorporar futuros formatos como:
-
-- post simple;
-- stories;
-- citas;
-- placas de datos.
+- máximo de 8 líneas en slides interiores;
+- 9 o más generan overflow;
+- el renderer no reduce tipografía;
+- ajuste del prompt editorial para producir textos más breves.
 
 ---
 
-### v0.3.1 — Recuperación de imágenes de ejemplo
+## v0.3 — Refactorización modular
 
-- `Cargar ejemplo` vuelve a cargar automáticamente las cinco fotografías de prueba;
-- cuando una imagen ya está asignada, la interfaz muestra `Cambiar imagen`.
+Se separa el renderer en:
+
+```text
+core/
+formats/
+templates/
+```
+
+El diseño de la fotogalería deja de estar acoplado a `app.js`.
+
+Esta versión prepara la incorporación de nuevos formatos.
 
 ---
 
-### v0.3.2 — Placeholders por defecto
+## v0.3.1 — Recuperación de imágenes de ejemplo
 
-Se modifica el flujo normal de carga.
+- `Cargar ejemplo` vuelve a cargar automáticamente las imágenes de prueba;
+- una pieza con imagen asignada muestra `Cambiar imagen`.
+
+---
+
+## v0.3.2 — Placeholders automáticos
+
+Se cambia el flujo normal de carga.
 
 Al cargar cualquier `job.json`:
 
-- aparecen inmediatamente los textos;
-- se asignan imágenes de ejemplo automáticamente;
-- las imágenes funcionan como placeholders;
-- la interfaz indica que deben reemplazarse;
+- aparecen los textos;
+- se asignan imágenes de ejemplo;
+- las imágenes quedan marcadas como placeholders;
+- el usuario debe reemplazarlas;
 - la exportación queda bloqueada mientras exista alguna imagen de ejemplo.
 
-Esto permite que el usuario vea inmediatamente una composición completa y solo tenga que sustituir las fotografías.
-
 ---
 
-### v0.3.3 — Corrección de Cargar ejemplo y caché
+## v0.3.3 — Corrección de ejemplo y caché
 
-- el JSON de ejemplo pasa a estar integrado directamente en `app.js`;
-- `Cargar ejemplo` deja de depender del archivo de formato;
+- el JSON de ejemplo se integra directamente en `app.js`;
+- `Cargar ejemplo` deja de depender del formato;
 - se agrega manejo visible de errores;
-- se actualizan los parámetros de versión de los scripts para evitar que GitHub Pages utilice archivos antiguos almacenados en caché.
+- se actualizan parámetros de versión para evitar caché antigua.
 
 ---
 
-### v0.3.4 — Compatibilidad del core de proyectos
+## v0.3.4 — Compatibilidad del core de proyectos
 
-Hotfix para la arquitectura modular.
+Hotfix para resolver una incompatibilidad entre:
 
-Se corrige la incompatibilidad entre:
-
-`EC.Project.create()`
+```javascript
+EC.Project.create()
+```
 
 y:
 
-`EC.Project.createWorkingProject()`
+```javascript
+EC.Project.createWorkingProject()
+```
 
-Se añade compatibilidad entre ambos métodos y se actualizan nuevamente las versiones de caché.
+Se añade compatibilidad entre ambos métodos.
 
-**Versión actual: v0.3.4**
+---
+
+## v0.3.5 — Compatibilidad defensiva desde `app.js`
+
+Se refuerza la creación del proyecto.
+
+`app.js` acepta tanto:
+
+```javascript
+createWorkingProject()
+```
+
+como:
+
+```javascript
+create()
+```
+
+Esto evita fallas cuando GitHub Pages o el navegador cargan temporalmente archivos de distintas versiones.
+
+---
+
+## v0.3.6 — Pegado directo de JSON
+
+Se cambia el flujo principal de entrada.
+
+Ahora el usuario puede:
+
+1. copiar el JSON generado por EC Social Studio;
+2. pegarlo directamente en el renderer;
+3. validarlo automáticamente;
+4. pulsar **Generar piezas**.
+
+Se mantienen como alternativas:
+
+- carga de archivo `.json`;
+- carga de ejemplo.
+
+También se incorpora tolerancia a bloques Markdown copiados desde ChatGPT.
+
+**Versión actual: `v0.3.6`**
+
+---
+
+## 31. Criterio de funcionamiento correcto
+
+Para considerar estable una versión debe poder completarse este flujo:
+
+1. abrir la aplicación;
+2. verificar la versión mostrada;
+3. pulsar **Cargar ejemplo**;
+4. visualizar las piezas;
+5. pegar un JSON real;
+6. verificar que el JSON sea validado;
+7. generar las piezas;
+8. editar un texto;
+9. provocar y corregir un overflow;
+10. reemplazar cada imagen de ejemplo;
+11. ajustar zoom y encuadre;
+12. comprobar que la exportación permanece bloqueada mientras exista un placeholder;
+13. comprobar que la exportación se habilita al completar el proyecto;
+14. descargar un PNG;
+15. descargar el ZIP;
+16. guardar `project.json`.
+
+---
+
+## 32. Estado del proyecto
+
+EC Social Renderer está actualmente en fase de **prototipo funcional**.
+
+La prioridad inmediata es estabilizar por completo el flujo de fotogalerías antes de incorporar nuevos formatos.
+
+Una vez validada esta base modular, los siguientes formatos previstos son:
+
+1. **Post simple de una sola imagen**
+2. **Historias de Instagram**
