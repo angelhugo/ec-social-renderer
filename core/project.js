@@ -38,13 +38,17 @@ window.EC.Project = {
     };
   },
 
+  createWorkingProject(job) {
+    return this.create(job);
+  },
+
   serialize(project) {
     const format = window.EC_FORMATS[project.formatId];
     const updatedJob = format.serialize(project.job, project.items);
 
     return {
       project_version: "1.0",
-      renderer_version: "0.3.0",
+      renderer_version: "0.3.4",
       job: updatedJob,
       assignments: project.items.map((item) => {
         const assignment = project.assignments.get(item.id);
