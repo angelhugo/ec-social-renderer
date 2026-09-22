@@ -7,12 +7,15 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=0.2.1">
+  <link rel="stylesheet" href="styles.css?v=0.3.0">
 </head>
 <body>
 <header>
   <img src="assets/logo-ec-yellow.png" alt="El Comercio">
-  <div><h1>EC Social Renderer</h1><small>v0.2.1 · Fotogalerías de Instagram</small></div>
+  <div>
+    <h1>EC Social Renderer</h1>
+    <small>v0.3 · Renderer modular</small>
+  </div>
 </header>
 <main>
   <section class="panel">
@@ -23,7 +26,7 @@
       </div>
       <button id="loadExample" class="secondary">Cargar ejemplo</button>
     </div>
-    <p class="note">Después de cargar el JSON, la galería se construye inmediatamente. La fotografía se elige dentro de cada slide y se procesa solo en tu navegador.</p>
+    <p class="note">Después de cargar el JSON, el formato y la plantilla determinan cómo se construye cada pieza. Las fotografías se procesan solo en tu navegador.</p>
     <div id="summary" class="summary"></div>
   </section>
 
@@ -37,10 +40,18 @@
     <p id="globalStatus" class="status"></p>
   </section>
 
-  <section class="panel"><label>Caption</label><div id="caption" class="caption">—</div></section>
+  <section class="panel">
+    <label>Caption</label>
+    <div id="caption" class="caption">—</div>
+  </section>
 </main>
+
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="template-ec-ig-galeria-01.js?v=0.2.1"></script>
-<script src="app.js?v=0.2.1"></script>
+<script src="core/renderer.js?v=0.3.0"></script>
+<script src="core/project.js?v=0.3.0"></script>
+<script src="core/export.js?v=0.3.0"></script>
+<script src="formats/gallery.js?v=0.3.0"></script>
+<script src="templates/EC_IG_GALERIA_01/template.js?v=0.3.0"></script>
+<script src="app.js?v=0.3.0"></script>
 </body>
 </html>

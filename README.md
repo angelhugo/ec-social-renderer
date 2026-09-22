@@ -1,49 +1,61 @@
-# EC Social Renderer
+# EC Social Renderer v0.3
 
-Renderer web estático para fotogalerías de Instagram de El Comercio.
+Refactorización interna para convertir el renderer en un motor multi-formato y multi-plantilla.
 
-## Qué hace
+## Objetivo
 
-- Carga un `job.json` producido por ChatGPT.
-- Carga fotografías desde la computadora del usuario.
-- Permite asignar una foto a cada slide.
-- Permite ajustar zoom y encuadre.
-- Valida que el texto quepa sin cambiar el tamaño tipográfico.
-- Renderiza `EC_IG_GALERIA_01` a 1080 × 1350.
-- Exporta PNG individuales y ZIP.
-- No usa OpenAI API.
-- Las fotografías se procesan en el navegador.
+Esta versión **no agrega funciones nuevas**. La fotogalería debe seguir funcionando igual que en v0.2.2.
 
-## Probar localmente
+La diferencia es interna: `app.js` ya no sabe cómo se dibuja una fotogalería.
 
-Desde la carpeta del proyecto:
+## Estructura
 
-```bash
-python3 -m http.server 8080
-```
+- `core/renderer.js`: utilidades genéricas de canvas, crop y texto.
+- `core/project.js`: contrato del job y project.json.
+- `core/export.js`: PNG, JSON y ZIP.
+- `formats/gallery.js`: estructura editorial de una fotogalería.
+- `templates/EC_IG_GALERIA_01/template.js`: diseño, geometría y validación visual.
+- `app.js`: interfaz y orquestación.
 
-Luego abre:
+## Assets
 
-```text
-http://localhost:8080
-```
+No reemplaces la carpeta `assets`. La plantilla sigue usando tus archivos existentes:
 
-Pulsa **Cargar ejemplo** para probar el renderer sin preparar archivos.
+- `assets/logo-ec-white.png`
+- `assets/logo-ec-yellow.png`
 
-## Publicar gratis en GitHub Pages
+## Qué subir a GitHub
 
-1. Crea un repositorio en GitHub.
-2. Sube estos archivos a la rama `main`.
-3. En `Settings → Pages`, usa `GitHub Actions` como Source.
-4. El workflow incluido en `.github/workflows/pages.yml` publicará el sitio.
+Reemplaza/sube:
 
-## Flujo
+- `index.html`
+- `styles.css`
+- `app.js`
+- `core/`
+- `formats/`
+- `templates/`
 
-ChatGPT → `job.json` → Renderer → fotos → encuadre → validación → PNG / ZIP.
+No borres `assets/`.
 
-## Dependencias
+## Commit sugerido
 
-- Google Fonts para Noto Serif.
-- JSZip desde jsDelivr para generar ZIP.
+**Commit message**
 
-Si JSZip no carga, los PNG individuales siguen funcionando.
+`Refactor renderer into modular architecture v0.3`
+
+**Description**
+
+`Separates core rendering, project/export logic, social formats, and visual templates without changing the current Instagram gallery workflow. Prepares the renderer for additional formats such as single posts and stories.`
+
+## Prueba de regresión
+
+1. Cargar ejemplo.
+2. Confirmar que aparecen 5 slides.
+3. Editar texto.
+4. Subir foto por slide.
+5. Probar zoom, horizontal y vertical.
+6. Llevar un interior a 9 líneas y comprobar overflow.
+7. Volver a 8 o menos.
+8. Descargar PNG.
+9. Descargar ZIP.
+10. Guardar `project.json`.
