@@ -1,0 +1,42 @@
+{
+  "schema_version": "1.0",
+  "template": "EC_IG_GALERIA_01",
+  "source_url": "https://elcomercio.pe/ejemplo",
+  "network": "instagram",
+  "format": "fotogaleria",
+  "approach": "explicativo",
+  "objective": "informar",
+  "slides": [
+    {
+      "id": 1,
+      "type": "cover",
+      "text": "Una portada de prueba para validar el renderer",
+      "image_hint": "Una imagen principal relacionada con la noticia"
+    },
+    {
+      "id": 2,
+      "type": "content",
+      "text": "Este es un texto de prueba para comprobar el tamaño fijo de la tipografía, los márgenes y el interlineado de los slides interiores.",
+      "image_hint": "Imagen que ilustre el hecho principal"
+    },
+    {
+      "id": 3,
+      "type": "content",
+      "text": "Cada slide utiliza exactamente las mismas reglas visuales. El renderer no reduce la tipografía si el contenido resulta demasiado largo.",
+      "image_hint": "Imagen de contexto"
+    },
+    {
+      "id": 4,
+      "type": "content",
+      "text": "Cuando el texto excede el área disponible, la aplicación muestra una alerta para que el editor vuelva a ChatGPT y reduzca o divida el contenido.",
+      "image_hint": "Imagen complementaria"
+    },
+    {
+      "id": 5,
+      "type": "content",
+      "text": "La exportación final se realiza directamente en el navegador: imágenes PNG de 1080 por 1350 píxeles y, opcionalmente, un archivo ZIP.",
+      "image_hint": "Imagen de cierre"
+    }
+  ],
+  "caption": "Caption de prueba para EC Social Renderer."
+}
