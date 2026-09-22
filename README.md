@@ -2,7 +2,8 @@
 
 Renderer web del MediaLab de El Comercio para convertir un `job.json` editorial en piezas sociales listas para exportar.
 
-Versión actual: **v0.3.3**
+Versión actual: **v0.3.4**
+Estado: **prototipo funcional**
 
 ---
 
@@ -750,3 +751,138 @@ EC Social Renderer se encuentra actualmente en etapa de prototipo funcional.
 La prioridad inmediata es estabilizar completamente la fotogalería antes de incorporar nuevos formatos visuales.
 
 Una vez validado el renderer modular, el siguiente formato previsto es un **post simple de una sola imagen**, seguido por formatos de **historias de Instagram**.
+
+
+---
+
+## Historial de versiones
+
+### v0.1 — Primer renderer funcional
+
+Primera versión operativa de EC Social Renderer.
+
+- carga de `job.json`;
+- renderizado de fotogalerías;
+- aplicación de la plantilla `EC_IG_GALERIA_01`;
+- carga de fotografías;
+- controles de crop, zoom y desplazamiento;
+- exportación de PNG y ZIP.
+
+---
+
+### v0.2 — Edición dentro del renderer
+
+Se mejora el flujo de trabajo editorial.
+
+- carga de fotografías por slide;
+- edición de texto directamente dentro de cada pieza;
+- actualización del preview en tiempo real;
+- detección de overflow;
+- tamaño de fuente y márgenes fijos;
+- exportación bloqueada cuando existen errores.
+
+---
+
+### v0.2.1 — Correcciones de interfaz
+
+- corrección de `Cargar ejemplo`;
+- visibilidad explícita del editor de texto;
+- visibilidad explícita del control para subir imágenes;
+- mejoras para evitar carga de versiones antiguas desde caché.
+
+---
+
+### v0.2.2 — Regla de ocho líneas
+
+Se establece la primera regla visual dura de la plantilla.
+
+- máximo de 8 líneas para slides interiores;
+- 9 líneas o más generan overflow;
+- el renderer nunca reduce automáticamente la tipografía;
+- actualización del prompt editorial para producir textos más breves.
+
+---
+
+### v0.3 — Refactorización modular
+
+El renderer deja de estar acoplado a una única fotogalería.
+
+Se separa en:
+
+- `core/`
+- `formats/`
+- `templates/`
+
+Responsabilidades:
+
+**Core**
+- renderizado genérico;
+- proyectos;
+- exportación.
+
+**Formats**
+- estructura editorial de cada formato.
+
+**Templates**
+- diseño;
+- geometría;
+- tipografía;
+- assets;
+- reglas de validación visual.
+
+Esta versión prepara el sistema para incorporar futuros formatos como:
+
+- post simple;
+- stories;
+- citas;
+- placas de datos.
+
+---
+
+### v0.3.1 — Recuperación de imágenes de ejemplo
+
+- `Cargar ejemplo` vuelve a cargar automáticamente las cinco fotografías de prueba;
+- cuando una imagen ya está asignada, la interfaz muestra `Cambiar imagen`.
+
+---
+
+### v0.3.2 — Placeholders por defecto
+
+Se modifica el flujo normal de carga.
+
+Al cargar cualquier `job.json`:
+
+- aparecen inmediatamente los textos;
+- se asignan imágenes de ejemplo automáticamente;
+- las imágenes funcionan como placeholders;
+- la interfaz indica que deben reemplazarse;
+- la exportación queda bloqueada mientras exista alguna imagen de ejemplo.
+
+Esto permite que el usuario vea inmediatamente una composición completa y solo tenga que sustituir las fotografías.
+
+---
+
+### v0.3.3 — Corrección de Cargar ejemplo y caché
+
+- el JSON de ejemplo pasa a estar integrado directamente en `app.js`;
+- `Cargar ejemplo` deja de depender del archivo de formato;
+- se agrega manejo visible de errores;
+- se actualizan los parámetros de versión de los scripts para evitar que GitHub Pages utilice archivos antiguos almacenados en caché.
+
+---
+
+### v0.3.4 — Compatibilidad del core de proyectos
+
+Hotfix para la arquitectura modular.
+
+Se corrige la incompatibilidad entre:
+
+`EC.Project.create()`
+
+y:
+
+`EC.Project.createWorkingProject()`
+
+Se añade compatibilidad entre ambos métodos y se actualizan nuevamente las versiones de caché.
+
+**Versión actual: v0.3.4**
