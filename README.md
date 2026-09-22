@@ -1,61 +1,46 @@
-# EC Social Renderer v0.3
+# Patch v0.3.1
 
-Refactorización interna para convertir el renderer en un motor multi-formato y multi-plantilla.
+Corrige el flujo del ejemplo después de la refactorización v0.3.
 
-## Objetivo
+## Cambio
 
-Esta versión **no agrega funciones nuevas**. La fotogalería debe seguir funcionando igual que en v0.2.2.
+Al pulsar **Cargar ejemplo**:
 
-La diferencia es interna: `app.js` ya no sabe cómo se dibuja una fotogalería.
+- se carga el JSON de ejemplo;
+- se cargan automáticamente:
+  - `examples/photos/photo_1.jpg`
+  - `examples/photos/photo_2.jpg`
+  - `examples/photos/photo_3.jpg`
+  - `examples/photos/photo_4.jpg`
+  - `examples/photos/photo_5.jpg`
+- cada slide aparece ya compuesto;
+- el selector muestra **Cambiar imagen**.
 
-## Estructura
+Al cargar un `job.json` real desde el equipo:
 
-- `core/renderer.js`: utilidades genéricas de canvas, crop y texto.
-- `core/project.js`: contrato del job y project.json.
-- `core/export.js`: PNG, JSON y ZIP.
-- `formats/gallery.js`: estructura editorial de una fotogalería.
-- `templates/EC_IG_GALERIA_01/template.js`: diseño, geometría y validación visual.
-- `app.js`: interfaz y orquestación.
+- las piezas siguen apareciendo sin fotografía;
+- el usuario selecciona la foto correspondiente.
 
-## Assets
+## Requisito
 
-No reemplaces la carpeta `assets`. La plantilla sigue usando tus archivos existentes:
+La carpeta existente:
 
-- `assets/logo-ec-white.png`
-- `assets/logo-ec-yellow.png`
+`examples/photos/`
 
-## Qué subir a GitHub
+debe conservar los cinco archivos de prueba.
 
-Reemplaza/sube:
+## GitHub
 
-- `index.html`
-- `styles.css`
-- `app.js`
-- `core/`
-- `formats/`
-- `templates/`
+Reemplaza únicamente:
 
-No borres `assets/`.
+`app.js`
 
-## Commit sugerido
+## Commit
 
 **Commit message**
 
-`Refactor renderer into modular architecture v0.3`
+`Restore example images after renderer refactor v0.3.1`
 
 **Description**
 
-`Separates core rendering, project/export logic, social formats, and visual templates without changing the current Instagram gallery workflow. Prepares the renderer for additional formats such as single posts and stories.`
-
-## Prueba de regresión
-
-1. Cargar ejemplo.
-2. Confirmar que aparecen 5 slides.
-3. Editar texto.
-4. Subir foto por slide.
-5. Probar zoom, horizontal y vertical.
-6. Llevar un interior a 9 líneas y comprobar overflow.
-7. Volver a 8 o menos.
-8. Descargar PNG.
-9. Descargar ZIP.
-10. Guardar `project.json`.
+`Restores automatic sample-photo loading for the built-in gallery example and changes the per-slide action to Change image when an image is already assigned.`
