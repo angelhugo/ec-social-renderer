@@ -3,7 +3,14 @@
     project: null,
     template: null,
     format: null,
-    templateAssets: null
+    templateAssets: null,
+    placeholderPool: [
+      "examples/photos/photo_1.jpg",
+      "examples/photos/photo_2.jpg",
+      "examples/photos/photo_3.jpg",
+      "examples/photos/photo_4.jpg",
+      "examples/photos/photo_5.jpg"
+    ]
   };
 
   const $ = (id) => document.getElementById(id);
@@ -36,44 +43,44 @@
     state.template = window.EC_TEMPLATES[state.project.templateId];
     state.templateAssets = await state.template.loadAssets();
 
-    if (options.exampleImages) {
-      await loadExampleImages(options.exampleImages);
+    if (options.withPlaceholders !== false) {
+      await preloadPlaceholderImages();
     }
 
     renderApp();
   }
 
-  async function loadExampleImages(paths) {
-    const loaded = await Promise.all(
-      paths.map(async (path, index) => {
+  async function preloadPlaceholderImages() {
+    const cache = new Map();
+
+    for (const item of state.project.items) {
+      if (!state.format.usesImage(item)) continue;
+      if (state.project.assignments.get(item.id)?.image) continue;
+
+      const path = state.placeholderPool[(item.id - 1) % state.placeholderPool.length];
+
+      if (!cache.has(path)) {
         try {
-          const image = await window.EC.Renderer.loadImage(path);
-
-          return {
-            itemId: index + 1,
-            assignment: {
-              filename: path.split("/").pop(),
-              file: null,
-              url: path,
-              image,
-              zoom: 1,
-              x: 0,
-              y: 0
-            }
-          };
+          cache.set(path, await window.EC.Renderer.loadImage(path));
         } catch (error) {
-          return null;
+          cache.set(path, null);
         }
-      })
-    );
+      }
 
-    loaded
-      .filter(Boolean)
-      .forEach(({ itemId, assignment }) => {
-        if (state.project.items.some((item) => item.id === itemId)) {
-          state.project.assignments.set(itemId, assignment);
-        }
+      const image = cache.get(path);
+      if (!image) continue;
+
+      state.project.assignments.set(item.id, {
+        filename: path.split("/").pop(),
+        file: null,
+        url: path,
+        image,
+        zoom: 1,
+        x: 0,
+        y: 0,
+        is_placeholder: true
       });
+    }
   }
 
   els.jobInput.addEventListener("change", async (event) => {
@@ -81,7 +88,7 @@
     if (!file) return;
 
     try {
-      await setJob(await readJsonFile(file));
+      await setJob(await readJsonFile(file), { withPlaceholders: true });
     } catch (error) {
       alert("No se pudo leer el JSON: " + error.message);
     }
@@ -200,6 +207,19 @@
     `;
   }
 
+  function imageLabelText(assignment) {
+    if (!assignment?.image) return "Subir imagen";
+    return "Cambiar imagen";
+  }
+
+  function imageFileText(assignment) {
+    if (!assignment?.image) return "";
+    if (assignment.is_placeholder) {
+      return `${assignment.filename} · IMAGEN DE EJEMPLO · REEMPLAZAR`;
+    }
+    return assignment.filename || "";
+  }
+
   function renderImageControls(item, assignment) {
     return `
       <div class="image-block">
@@ -216,9 +236,7 @@
           Selecciona la imagen para esta pieza.
         </div>
 
-        <label>
-          ${assignment?.image ? "Cambiar imagen" : "Subir imagen"}
-        </label>
+        <label>${imageLabelText(assignment)}</label>
 
         <input
           data-role="photo"
@@ -230,7 +248,7 @@
           class="photo-name ${assignment?.image ? "" : "hidden"}"
           data-role="photo-name"
         >
-          ${esc(assignment?.filename || "")}
+          ${esc(imageFileText(assignment))}
         </div>
 
         <div
@@ -322,7 +340,8 @@
         image,
         zoom: 1,
         x: 0,
-        y: 0
+        y: 0,
+        is_placeholder: false
       });
 
       renderItems();
@@ -425,6 +444,10 @@
       status.textContent = "Falta asignar fotografía";
       status.className = "status warn";
       card.classList.remove("has-overflow");
+    } else if (assignment?.is_placeholder) {
+      status.textContent = "Usando imagen de ejemplo. Debes reemplazarla.";
+      status.className = "status warn";
+      card.classList.remove("has-overflow");
     } else {
       status.textContent = "✓ Diseño válido";
       status.className = "status ok";
@@ -437,7 +460,8 @@
 
     return state.project.items.every((item) => {
       if (!state.format.usesImage(item)) return true;
-      return !!state.project.assignments.get(item.id)?.image;
+      const assignment = state.project.assignments.get(item.id);
+      return !!assignment?.image && !assignment?.is_placeholder;
     });
   }
 
@@ -473,6 +497,11 @@
       }).ok;
     }).length;
 
+    const placeholderCount = state.project.items.filter((item) => {
+      const assignment = state.project.assignments.get(item.id);
+      return state.format.usesImage(item) && assignment?.is_placeholder;
+    }).length;
+
     const missingImages = state.project.items.filter((item) => {
       return (
         state.format.usesImage(item) &&
@@ -486,7 +515,11 @@
       els.globalStatus.className = "status warn";
     } else if (missingImages) {
       els.globalStatus.textContent =
-        `Faltan ${missingImages} fotografía(s) por asignar.`;
+        `Faltan ${missingImages} imagen(es) por asignar.`;
+      els.globalStatus.className = "status warn";
+    } else if (placeholderCount) {
+      els.globalStatus.textContent =
+        `Debes reemplazar ${placeholderCount} imagen(es) de ejemplo antes de exportar.`;
       els.globalStatus.className = "status warn";
     } else {
       els.globalStatus.textContent = "✓ Proyecto listo para exportar.";
@@ -511,7 +544,7 @@
 
     if (!(allRequiredImagesPresent() && allItemsValid())) {
       alert(
-        "Antes de exportar, todas las piezas deben estar completas y pasar la validación."
+        "Antes de exportar, todas las piezas deben tener imágenes reales y pasar la validación."
       );
       return;
     }
@@ -534,19 +567,7 @@
 
   els.loadExample.addEventListener("click", async () => {
     const format = window.EC_FORMATS.fotogaleria;
-
-    await setJob(
-      format.getExampleJob(),
-      {
-        exampleImages: [
-          "examples/photos/photo_1.jpg",
-          "examples/photos/photo_2.jpg",
-          "examples/photos/photo_3.jpg",
-          "examples/photos/photo_4.jpg",
-          "examples/photos/photo_5.jpg"
-        ]
-      }
-    );
+    await setJob(format.getExampleJob(), { withPlaceholders: true });
   });
 
   function esc(value) {

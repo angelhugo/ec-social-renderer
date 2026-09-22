@@ -1,46 +1,45 @@
-# Patch v0.3.1
+# Patch v0.3.2 — versión definitiva del flujo de imágenes
 
-Corrige el flujo del ejemplo después de la refactorización v0.3.
+## Cambio principal
 
-## Cambio
+Ahora, al cargar **cualquier `job.json`**, el renderer:
 
-Al pulsar **Cargar ejemplo**:
+1. crea todas las piezas con sus textos;
+2. asigna automáticamente imágenes de ejemplo como placeholders;
+3. muestra desde el inicio el botón **Cambiar imagen**;
+4. marca internamente esas imágenes como `is_placeholder: true`;
+5. bloquea la exportación hasta que todas sean reemplazadas por imágenes reales.
 
-- se carga el JSON de ejemplo;
-- se cargan automáticamente:
-  - `examples/photos/photo_1.jpg`
-  - `examples/photos/photo_2.jpg`
-  - `examples/photos/photo_3.jpg`
-  - `examples/photos/photo_4.jpg`
-  - `examples/photos/photo_5.jpg`
-- cada slide aparece ya compuesto;
-- el selector muestra **Cambiar imagen**.
+## Qué ve el usuario
 
-Al cargar un `job.json` real desde el equipo:
-
-- las piezas siguen apareciendo sin fotografía;
-- el usuario selecciona la foto correspondiente.
+- Galería inmediatamente compuesta.
+- Nombre del archivo de ejemplo + mensaje:
+  `IMAGEN DE EJEMPLO · REEMPLAZAR`
+- Estado por pieza:
+  `Usando imagen de ejemplo. Debes reemplazarla.`
+- Estado global:
+  `Debes reemplazar X imagen(es) de ejemplo antes de exportar.`
 
 ## Requisito
 
-La carpeta existente:
+Debe seguir existiendo esta carpeta en el repo:
 
-`examples/photos/`
+examples/photos/
+- photo_1.jpg
+- photo_2.jpg
+- photo_3.jpg
+- photo_4.jpg
+- photo_5.jpg
 
-debe conservar los cinco archivos de prueba.
+## Archivos a reemplazar
 
-## GitHub
+Solo:
+- `app.js`
 
-Reemplaza únicamente:
+## Commit sugerido
 
-`app.js`
+Commit message:
+`Make placeholder images the default JSON loading flow v0.3.2`
 
-## Commit
-
-**Commit message**
-
-`Restore example images after renderer refactor v0.3.1`
-
-**Description**
-
-`Restores automatic sample-photo loading for the built-in gallery example and changes the per-slide action to Change image when an image is already assigned.`
+Description:
+`Automatically assigns sample placeholder images when any job JSON is loaded, shows Change image as the default action, and blocks export until all placeholder images are replaced.`
