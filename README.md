@@ -2,7 +2,7 @@
 
 Renderer web del MediaLab de El Comercio para convertir un `job.json` editorial en piezas sociales listas para revisión y exportación.
 
-**Versión actual:** `v0.3.6`  
+**Versión actual:** `v0.3.7`  
 **Estado:** Prototipo funcional
 
 ---
@@ -393,7 +393,7 @@ Ejemplo conceptual:
 ```json
 {
   "project_version": "1.0",
-  "renderer_version": "0.3.6",
+  "renderer_version": "0.3.7",
   "job": {},
   "assignments": [
     {
@@ -718,7 +718,7 @@ Para evitar que GitHub Pages o el navegador sirvan archivos antiguos, `index.htm
 Ejemplo:
 
 ```html
-<script src="app.js?v=0.3.6"></script>
+<script src="app.js?v=0.3.7"></script>
 ```
 
 Cada versión debe actualizar estos parámetros.
@@ -798,7 +798,41 @@ PNG / ZIP
 
 ---
 
-# 30. Historial de versiones
+
+## 30. Ajustes de composición y encuadre
+
+### Centrado vertical del titular de portada
+
+El titular de la portada se centra verticalmente dentro del recuadro amarillo.
+
+Esto evita que titulares cortos queden pegados al borde superior y dejen un vacío excesivo en la parte inferior.
+
+La posición vertical se calcula dinámicamente según:
+
+- cantidad de líneas;
+- tamaño de fuente;
+- interlineado;
+- altura del recuadro amarillo.
+
+El tamaño de fuente y el ancho de la caja siguen siendo fijos.
+
+### Controles de encuadre junto al preview
+
+Los controles:
+
+- Zoom;
+- Horizontal;
+- Vertical;
+
+se muestran inmediatamente debajo de la previsualización de cada pieza.
+
+El objetivo es que el usuario pueda ajustar el encuadre mientras ve el resultado sin tener que desplazarse hasta una zona inferior de la tarjeta.
+
+La edición de texto y el cambio de imagen permanecen debajo de estos controles.
+
+---
+
+# 31. Historial de versiones
 
 ## v0.1 — Primer renderer funcional
 
@@ -950,11 +984,22 @@ Se mantienen como alternativas:
 
 También se incorpora tolerancia a bloques Markdown copiados desde ChatGPT.
 
-**Versión actual: `v0.3.6`**
+
+## v0.3.7 — Ajustes de portada y controles de imagen
+
+Mejoras de experiencia de uso detectadas durante pruebas reales:
+
+- el titular de portada se centra verticalmente dentro del recuadro amarillo;
+- los titulares cortos mantienen una composición equilibrada;
+- Zoom, Horizontal y Vertical pasan inmediatamente debajo del preview;
+- el usuario puede ajustar el encuadre viendo simultáneamente el resultado;
+- no se modifican los tamaños de fuente, márgenes ni reglas de overflow.
+
+**Versión actual: `v0.3.7`**
 
 ---
 
-## 31. Criterio de funcionamiento correcto
+## 32. Criterio de funcionamiento correcto
 
 Para considerar estable una versión debe poder completarse este flujo:
 
@@ -977,7 +1022,7 @@ Para considerar estable una versión debe poder completarse este flujo:
 
 ---
 
-## 32. Estado del proyecto
+## 33. Estado del proyecto
 
 EC Social Renderer está actualmente en fase de **prototipo funcional**.
 

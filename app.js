@@ -1,5 +1,5 @@
 (() => {
-  window.EC_RENDERER_VERSION = "0.3.6";
+  window.EC_RENDERER_VERSION = "0.3.7";
   const state = {
     project: null,
     template: null,
@@ -242,6 +242,10 @@
       ? renderImageControls(item, assignment)
       : "";
 
+    const imageAdjustmentsHtml = state.format.usesImage(item)
+      ? renderImageAdjustmentControls(assignment)
+      : "";
+
     card.innerHTML = `
       <div class="slide-head">
         <strong>${esc(state.format.getItemLabel(item))}</strong>
@@ -255,6 +259,8 @@
           data-role="canvas"
         ></canvas>
       </div>
+
+      ${imageAdjustmentsHtml}
 
       <div class="slide-body">
         ${fieldsHtml}
@@ -312,6 +318,54 @@
     return assignment.filename || "";
   }
 
+  function renderImageAdjustmentControls(assignment) {
+    return `
+      <div
+        class="image-adjustments ${assignment?.image ? "" : "hidden"}"
+        data-role="photo-controls"
+      >
+        <div class="range-row">
+          <span>Zoom</span>
+          <input
+            data-role="zoom"
+            type="range"
+            min="1"
+            max="3"
+            step=".01"
+            value="${assignment?.zoom ?? 1}"
+          >
+          <span data-value="zoom">${(assignment?.zoom ?? 1).toFixed(2)}×</span>
+        </div>
+
+        <div class="range-row">
+          <span>Horizontal</span>
+          <input
+            data-role="x"
+            type="range"
+            min="-1"
+            max="1"
+            step=".01"
+            value="${assignment?.x ?? 0}"
+          >
+          <span data-value="x">${(assignment?.x ?? 0).toFixed(2)}</span>
+        </div>
+
+        <div class="range-row">
+          <span>Vertical</span>
+          <input
+            data-role="y"
+            type="range"
+            min="-1"
+            max="1"
+            step=".01"
+            value="${assignment?.y ?? 0}"
+          >
+          <span data-value="y">${(assignment?.y ?? 0).toFixed(2)}</span>
+        </div>
+      </div>
+    `;
+  }
+
   function renderImageControls(item, assignment) {
     return `
       <div class="image-block">
@@ -341,50 +395,6 @@
           data-role="photo-name"
         >
           ${esc(imageFileText(assignment))}
-        </div>
-
-        <div
-          class="photo-controls ${assignment?.image ? "" : "hidden"}"
-          data-role="photo-controls"
-        >
-          <div class="range-row">
-            <span>Zoom</span>
-            <input
-              data-role="zoom"
-              type="range"
-              min="1"
-              max="3"
-              step=".01"
-              value="${assignment?.zoom ?? 1}"
-            >
-            <span data-value="zoom">${(assignment?.zoom ?? 1).toFixed(2)}×</span>
-          </div>
-
-          <div class="range-row">
-            <span>Horizontal</span>
-            <input
-              data-role="x"
-              type="range"
-              min="-1"
-              max="1"
-              step=".01"
-              value="${assignment?.x ?? 0}"
-            >
-            <span data-value="x">${(assignment?.x ?? 0).toFixed(2)}</span>
-          </div>
-
-          <div class="range-row">
-            <span>Vertical</span>
-            <input
-              data-role="y"
-              type="range"
-              min="-1"
-              max="1"
-              step=".01"
-              value="${assignment?.y ?? 0}"
-            >
-            <span data-value="y">${(assignment?.y ?? 0).toFixed(2)}</span>
-          </div>
         </div>
       </div>
     `;

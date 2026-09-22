@@ -18,7 +18,7 @@ window.EC_TEMPLATES.EC_IG_GALERIA_01 = {
     cover: {
       arrow: { x: 65, y: 703, w: 230, h: 118 },
       titleBox: { x: 0, y: 822, w: 757, h: 350 },
-      text: { x: 47, y: 850, width: 660, maxHeight: 285, fontSize: 56, lineHeight: 1.05 }
+      text: { x: 47, width: 660, maxHeight: 285, fontSize: 56, lineHeight: 1.05, verticalAlign: "center" }
     },
     content: {
       text: { x: 108, y: 858, right: 108, fontSize: 52, lineHeight: 1.05, maxLines: 8 },
@@ -84,7 +84,24 @@ window.EC_TEMPLATES.EC_IG_GALERIA_01 = {
     R.setFont(ctx, cfg.fontSize);
     ctx.fillStyle = this.colors.black;
     ctx.textBaseline = "top";
-    R.drawWrappedText(ctx, item.text, cfg.x, cfg.y, cfg.width, cfg.fontSize * cfg.lineHeight);
+
+    const lineHeightPx = cfg.fontSize * cfg.lineHeight;
+    const lines = R.wrapLines(ctx, item.text, cfg.width);
+    const textHeight = lines.length * lineHeightPx;
+
+    const textY =
+      cfg.verticalAlign === "center"
+        ? box.y + Math.max(0, (box.h - textHeight) / 2)
+        : (cfg.y ?? box.y);
+
+    R.drawWrappedText(
+      ctx,
+      item.text,
+      cfg.x,
+      textY,
+      cfg.width,
+      lineHeightPx
+    );
   },
 
   renderContent({ ctx, item, assignment, assets }) {

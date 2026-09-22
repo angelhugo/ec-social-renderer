@@ -97,3 +97,20 @@ button{border:0;border-radius:9px;padding:12px 14px;background:#111;color:#fff;f
     width:100%;
   }
 }
+
+
+/* v0.3.7 — image controls directly under preview */
+
+.image-adjustments{
+  padding:10px 16px 12px;
+  background:#fff;
+  border-bottom:1px solid var(--line);
+}
+
+.image-adjustments .range-row{
+  margin:7px 0;
+}
+
+.image-adjustments + .slide-body{
+  padding-top:14px;
+}
