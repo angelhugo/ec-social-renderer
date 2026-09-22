@@ -4,40 +4,26 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>EC Social Renderer</title>
-
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet">
-
   <link rel="stylesheet" href="styles.css">
 </head>
 <body>
 <header>
   <img src="assets/logo-ec-yellow.png" alt="El Comercio">
-  <div>
-    <h1>EC Social Renderer</h1>
-    <small>MVP · Fotogalerías de Instagram</small>
-  </div>
+  <div><h1>EC Social Renderer</h1><small>v0.2 · Fotogalerías de Instagram</small></div>
 </header>
-
 <main>
   <section class="panel">
-    <div class="controls">
+    <div class="job-row">
       <div>
         <label for="jobInput">1. Cargar job.json</label>
         <input id="jobInput" type="file" accept=".json,application/json">
       </div>
-
-      <div>
-        <label for="imageInput">2. Cargar fotografías</label>
-        <input id="imageInput" type="file" accept="image/jpeg,image/png,image/webp" multiple>
-      </div>
+      <button id="loadExample" class="secondary">Cargar ejemplo</button>
     </div>
-
-    <p class="note">
-      Las fotografías se procesan en tu navegador. El renderer no usa OpenAI ni envía las imágenes a un servidor.
-    </p>
-
+    <p class="note">Después de cargar el JSON, la galería se construye inmediatamente. La fotografía se elige dentro de cada slide y se procesa solo en tu navegador.</p>
     <div id="summary" class="summary"></div>
   </section>
 
@@ -45,19 +31,14 @@
 
   <section class="panel">
     <div class="toolbar">
-      <button id="downloadZip" disabled>Descargar ZIP</button>
+      <button id="downloadZip" disabled>Descargar galería</button>
       <button id="downloadProject" class="secondary" disabled>Guardar project.json</button>
-      <button id="loadExample" class="secondary">Cargar ejemplo</button>
     </div>
     <p id="globalStatus" class="status"></p>
   </section>
 
-  <section class="panel">
-    <label>Caption</label>
-    <div id="caption" class="caption">—</div>
-  </section>
+  <section class="panel"><label>Caption</label><div id="caption" class="caption">—</div></section>
 </main>
-
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
 <script src="template-ec-ig-galeria-01.js"></script>
 <script src="app.js"></script>
