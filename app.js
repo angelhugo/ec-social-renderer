@@ -69,15 +69,15 @@
         </div>
         <div class="preview-wrap"><canvas width="1080" height="1350" data-role="canvas"></canvas></div>
         <div class="slide-body">
-          <label>Texto</label>
+          <div class="field-title"><label>Texto editable</label><small>Edita aquí si hay overflow</small></div>
           <textarea class="text-editor" data-role="text" spellcheck="true">${esc(slide.text)}</textarea>
           <div class="char-row"><span>Editable: los cambios actualizan la pieza al instante.</span><span data-role="char-count">${slide.text.length}</span></div>
 
           <div class="image-block">
             <p class="hint"><strong>Imagen sugerida:</strong> ${esc(slide.image_hint||"Sin sugerencia")}</p>
             <div class="photo-placeholder ${assignment?.image?"hidden":""}" data-role="placeholder"><strong>Falta fotografía</strong>Selecciona la imagen para este slide.</div>
-            <label>${assignment?.image?"Cambiar fotografía":"Subir fotografía"}</label>
-            <input data-role="photo" type="file" accept="image/jpeg,image/png,image/webp">
+            <label class="photo-upload-button" for="photo-${slide.id}">${assignment?.image?"Cambiar fotografía":"Subir fotografía"}</label>
+            <input id="photo-${slide.id}" class="photo-file-input" data-role="photo" type="file" accept="image/jpeg,image/png,image/webp">
             <div class="photo-name ${assignment?.image?"":"hidden"}" data-role="photo-name">${esc(assignment?.filename||"")}</div>
             <div class="photo-controls ${assignment?.image?"":"hidden"}" data-role="photo-controls">
               <div class="range-row"><span>Zoom</span><input data-role="zoom" type="range" min="1" max="3" step=".01" value="${assignment?.zoom??1}"><span data-value="zoom">${(assignment?.zoom??1).toFixed(2)}×</span></div>
@@ -276,12 +276,34 @@
     a.href=url; a.download="project.json"; a.click(); setTimeout(()=>URL.revokeObjectURL(url),1000);
   });
 
-  els.loadExample.addEventListener("click",async()=>{
-    try{ const response=await fetch("examples/job-ejemplo.json"); setJob(await response.json()); }
-    catch(err){ alert("No se pudo cargar el ejemplo."); }
+  const EXAMPLE_JOB = {
+    schema_version:"1.0",
+    template:"EC_IG_GALERIA_01",
+    source_url:"https://elcomercio.pe/prueba-renderer/",
+    network:"instagram",
+    format:"fotogaleria",
+    approach:"Explicativo",
+    objective:"Informar",
+    slides:[
+      {id:1,type:"cover",text:"Cinco claves para entender cómo cambia la movilidad en Lima",image_hint:"Vista urbana de Lima con tránsito vehicular y transporte público"},
+      {id:2,type:"content",text:"La movilidad urbana está cambiando por una combinación de nuevas rutas, mayor uso del transporte público y ajustes en la infraestructura vial. Estos cambios buscan reducir los tiempos de viaje y ordenar mejor el tránsito en las zonas de mayor congestión.",image_hint:"Bus de transporte público circulando por una avenida principal de Lima"},
+      {id:3,type:"content",text:"Uno de los principales retos sigue siendo conectar mejor los distintos sistemas de transporte. Cuando una persona debe combinar buses, corredores y otros servicios, los tiempos de espera y los trasbordos pueden terminar haciendo el viaje más largo de lo previsto.",image_hint:"Paradero con pasajeros esperando transporte público"},
+      {id:4,type:"content",text:"Este slide está hecho deliberadamente más largo para probar el sistema de overflow del renderer. Si el texto supera el espacio disponible, debería aparecer una advertencia visual sin reducir automáticamente el tamaño de la tipografía. Desde la misma tarjeta del slide debes poder editar este texto, acortarlo y comprobar cómo la alerta desaparece en tiempo real cuando vuelve a entrar correctamente dentro del área de texto definida por la plantilla.",image_hint:"Tráfico intenso en una avenida de Lima durante hora punta"},
+      {id:5,type:"content",text:"El objetivo final es que moverse por la ciudad sea más predecible. Para conseguirlo no basta con nuevas obras: también se necesita integrar servicios, mejorar la información para los pasajeros y medir constantemente qué soluciones están funcionando.",image_hint:"Personas utilizando distintos medios de transporte en una zona urbana"}
+    ],
+    caption:"La forma de movernos por Lima sigue cambiando. Estas son cinco claves para entender algunos de los principales desafíos de la movilidad urbana."
+  };
+
+  els.loadExample.addEventListener("click",()=>{
+    setJob(structuredClone(EXAMPLE_JOB));
   });
 
   function esc(value){ return String(value??"").replace(/[&<>"']/g,char=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[char])); }
 
-  document.fonts?.ready.then(()=>{ initBrandAssets().then(renderApp); });
+  async function boot(){
+    try{ await initBrandAssets(); }
+    catch(err){ console.warn("No se pudieron cargar uno o más logos.",err); }
+    renderApp();
+  }
+  if(document.fonts?.ready){ document.fonts.ready.then(boot); } else { boot(); }
 })();
