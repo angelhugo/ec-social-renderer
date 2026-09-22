@@ -7,26 +7,59 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Serif:wght@700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="styles.css?v=0.3.4">
+  <link rel="stylesheet" href="styles.css?v=0.3.6">
 </head>
 <body>
 <header>
   <img src="assets/logo-ec-yellow.png" alt="El Comercio">
   <div>
     <h1>EC Social Renderer</h1>
-    <small>v0.3.4 · Renderer modular</small>
+    <small>v0.3.6 · Renderer modular</small>
   </div>
 </header>
 <main>
   <section class="panel">
-    <div class="job-row">
+    <div class="json-primary">
+      <label for="jsonPaste">Pega aquí el JSON generado por EC Social Studio</label>
+
+      <textarea
+        id="jsonPaste"
+        class="json-paste"
+        spellcheck="false"
+        placeholder='{
+  "schema_version": "1.0",
+  "template": "EC_IG_GALERIA_01",
+  ...
+}'
+      ></textarea>
+
+      <p id="jsonInputStatus" class="json-input-status"></p>
+
+      <button id="loadPastedJson" disabled>
+        Generar piezas
+      </button>
+    </div>
+
+    <div class="json-separator">
+      <span>o</span>
+    </div>
+
+    <div class="secondary-loaders">
       <div>
-        <label for="jobInput">1. Cargar job.json</label>
+        <label for="jobInput">Cargar archivo .json</label>
         <input id="jobInput" type="file" accept=".json,application/json">
       </div>
-      <button id="loadExample" class="secondary">Cargar ejemplo</button>
+
+      <button id="loadExample" class="secondary">
+        Cargar ejemplo
+      </button>
     </div>
-    <p class="note">Después de cargar el JSON, el formato y la plantilla determinan cómo se construye cada pieza. Las fotografías se procesan solo en tu navegador.</p>
+
+    <p class="note">
+      Al generar las piezas, el renderer carga imágenes de ejemplo como referencia.
+      Debes reemplazarlas antes de exportar la galería final.
+    </p>
+
     <div id="summary" class="summary"></div>
   </section>
 
@@ -47,11 +80,11 @@
 </main>
 
 <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
-<script src="core/renderer.js?v=0.3.4"></script>
-<script src="core/project.js?v=0.3.4"></script>
-<script src="core/export.js?v=0.3.4"></script>
-<script src="formats/gallery.js?v=0.3.4"></script>
-<script src="templates/EC_IG_GALERIA_01/template.js?v=0.3.4"></script>
-<script src="app.js?v=0.3.4"></script>
+<script src="core/renderer.js?v=0.3.6"></script>
+<script src="core/project.js?v=0.3.6"></script>
+<script src="core/export.js?v=0.3.6"></script>
+<script src="formats/gallery.js?v=0.3.6"></script>
+<script src="templates/EC_IG_GALERIA_01/template.js?v=0.3.6"></script>
+<script src="app.js?v=0.3.6"></script>
 </body>
 </html>

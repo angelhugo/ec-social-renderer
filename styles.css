@@ -12,3 +12,88 @@ button{border:0;border-radius:9px;padding:12px 14px;background:#111;color:#fff;f
 @media(max-width:760px){main{padding:14px}.job-row{grid-template-columns:1fr}.slides{grid-template-columns:1fr}canvas{width:270px;height:337.5px}}
 
 .photo-file-input{position:absolute;left:-9999px;width:1px;height:1px;opacity:0}.photo-upload-button{display:block;width:100%;border:1px solid #111;border-radius:9px;padding:12px 14px;background:#111;color:#fff;font-weight:700;text-align:center;cursor:pointer;margin-bottom:8px}.photo-upload-button:hover{opacity:.92}.field-title{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:7px}.field-title small{font-weight:400;color:var(--muted)}
+
+
+/* v0.3.6 — Paste JSON primary flow */
+
+.json-primary{
+  max-width:860px;
+}
+
+.json-paste{
+  width:100%;
+  min-height:230px;
+  resize:vertical;
+  border:1px solid var(--line);
+  border-radius:10px;
+  padding:14px;
+  background:#fff;
+  color:var(--ink);
+  font:13px/1.5 ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono","Courier New",monospace;
+  tab-size:2;
+}
+
+.json-paste:focus{
+  outline:2px solid rgba(252,199,22,.45);
+  border-color:#c9a007;
+}
+
+.json-primary > button{
+  width:auto;
+  min-width:180px;
+  margin-top:8px;
+}
+
+.json-input-status{
+  min-height:18px;
+  margin:8px 0 2px;
+  font-size:12px;
+  font-weight:700;
+}
+
+.json-input-status.ok{
+  color:var(--ok);
+}
+
+.json-input-status.warn{
+  color:var(--danger);
+}
+
+.json-separator{
+  display:flex;
+  align-items:center;
+  gap:14px;
+  margin:22px 0;
+  color:var(--muted);
+  font-size:12px;
+  text-transform:uppercase;
+}
+
+.json-separator::before,
+.json-separator::after{
+  content:"";
+  height:1px;
+  background:var(--line);
+  flex:1;
+}
+
+.secondary-loaders{
+  display:grid;
+  grid-template-columns:minmax(260px,460px) minmax(160px,220px);
+  gap:20px;
+  align-items:end;
+}
+
+.secondary-loaders button{
+  margin:0;
+}
+
+@media(max-width:760px){
+  .secondary-loaders{
+    grid-template-columns:1fr;
+  }
+
+  .json-primary > button{
+    width:100%;
+  }
+}

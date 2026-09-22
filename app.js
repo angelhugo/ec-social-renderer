@@ -1,4 +1,5 @@
 (() => {
+  window.EC_RENDERER_VERSION = "0.3.6";
   const state = {
     project: null,
     template: null,
@@ -16,6 +17,9 @@
   const $ = (id) => document.getElementById(id);
 
   const els = {
+    jsonPaste: $("jsonPaste"),
+    loadPastedJson: $("loadPastedJson"),
+    jsonInputStatus: $("jsonInputStatus"),
     jobInput: $("jobInput"),
     items: $("slidesSection"),
     summary: $("summary"),
@@ -38,7 +42,17 @@
       return;
     }
 
-    state.project = window.EC.Project.createWorkingProject(job);
+    const projectFactory =
+      window.EC.Project.createWorkingProject ||
+      window.EC.Project.create;
+
+    if (typeof projectFactory !== "function") {
+      throw new Error(
+        "El módulo core/project.js no expone createWorkingProject() ni create()."
+      );
+    }
+
+    state.project = projectFactory.call(window.EC.Project, job);
     state.format = window.EC_FORMATS[state.project.formatId];
     state.template = window.EC_TEMPLATES[state.project.templateId];
     state.templateAssets = await state.template.loadAssets();
@@ -83,14 +97,92 @@
     }
   }
 
+  function normalizeJsonText(raw) {
+    let text = String(raw || "").trim();
+
+    if (text.startsWith("```")) {
+      text = text.replace(/^```(?:json)?\s*/i, "");
+      text = text.replace(/\s*```$/, "");
+    }
+
+    return text.trim();
+  }
+
+  function parseJsonText(raw) {
+    const normalized = normalizeJsonText(raw);
+
+    if (!normalized) {
+      throw new Error("Pega un JSON antes de continuar.");
+    }
+
+    return JSON.parse(normalized);
+  }
+
+  function setJsonStatus(message, type = "") {
+    if (!els.jsonInputStatus) return;
+
+    els.jsonInputStatus.textContent = message;
+    els.jsonInputStatus.className =
+      type ? `json-input-status ${type}` : "json-input-status";
+  }
+
+  function validatePastedJson() {
+    const raw = els.jsonPaste?.value || "";
+
+    if (!raw.trim()) {
+      setJsonStatus("");
+      if (els.loadPastedJson) els.loadPastedJson.disabled = true;
+      return;
+    }
+
+    try {
+      const job = parseJsonText(raw);
+      const errors = window.EC.Project.validateJob(job);
+
+      if (errors.length) {
+        setJsonStatus(
+          "JSON válido, pero no cumple el formato esperado: " + errors[0],
+          "warn"
+        );
+        if (els.loadPastedJson) els.loadPastedJson.disabled = true;
+        return;
+      }
+
+      setJsonStatus("✓ JSON válido. Ya puedes generar las piezas.", "ok");
+      if (els.loadPastedJson) els.loadPastedJson.disabled = false;
+    } catch (error) {
+      setJsonStatus("JSON inválido: " + error.message, "warn");
+      if (els.loadPastedJson) els.loadPastedJson.disabled = true;
+    }
+  }
+
+  els.jsonPaste?.addEventListener("input", validatePastedJson);
+
+  els.loadPastedJson?.addEventListener("click", async () => {
+    try {
+      const job = parseJsonText(els.jsonPaste.value);
+      await setJob(job, { withPlaceholders: true });
+    } catch (error) {
+      setJsonStatus("No se pudo cargar: " + error.message, "warn");
+    }
+  });
+
   els.jobInput.addEventListener("change", async (event) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
     try {
-      await setJob(await readJsonFile(file), { withPlaceholders: true });
+      const raw = await file.text();
+      const job = parseJsonText(raw);
+
+      if (els.jsonPaste) {
+        els.jsonPaste.value = JSON.stringify(job, null, 2);
+      }
+
+      validatePastedJson();
+      await setJob(job, { withPlaceholders: true });
     } catch (error) {
-      alert("No se pudo leer el JSON: " + error.message);
+      setJsonStatus("No se pudo leer el archivo: " + error.message, "warn");
     }
   });
 
@@ -610,10 +702,15 @@
 
   els.loadExample.addEventListener("click", async () => {
     try {
+      if (els.jsonPaste) {
+        els.jsonPaste.value = JSON.stringify(EXAMPLE_JOB, null, 2);
+      }
+
+      validatePastedJson();
       await setJob(structuredClone(EXAMPLE_JOB), { withPlaceholders: true });
     } catch (error) {
       console.error(error);
-      alert("No se pudo cargar el ejemplo: " + error.message);
+      setJsonStatus("No se pudo cargar el ejemplo: " + error.message, "warn");
     }
   });
 
