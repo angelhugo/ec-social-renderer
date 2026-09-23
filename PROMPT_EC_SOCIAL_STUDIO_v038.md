@@ -39,11 +39,15 @@ Los títulos deben ser breves, descriptivos, sin duplicar la primera oración de
 
 **Portada:** preferentemente 8–16 palabras. El titular se centra verticalmente en una caja amarilla fija.
 
-**Interior sin título:** texto breve, generalmente 30–45 palabras como orientación; la plantilla admite como máximo ocho líneas con Noto Serif de tamaño fijo.
+**Interior sin título:** texto breve, generalmente entre **25 y 35 palabras** como orientación. La plantilla admite como máximo ocho líneas con Noto Serif de tamaño fijo.
 
-**Interior con título:** título breve y cuerpo normalmente más corto; la plantilla admite como máximo dos líneas de título y cinco de cuerpo, además de un divisor dorado. No conviertas los límites de líneas en garantías: solo el renderer mide el ancho y la altura reales.
+**Interior con título:** título breve, preferentemente de **3 a 7 palabras**, que no supere dos líneas. El cuerpo debe tener aproximadamente **18–25 palabras** y complementar el título, sin repetirlo. Si el título ocupa dos líneas, procura acortar todavía más el cuerpo. La plantilla admite como máximo cinco líneas de cuerpo e incorpora un divisor dorado entre ambos.
 
-Si el contenido no cabe, el editor podrá acortarlo o repartirlo entre más slides. El renderer no reducirá automáticamente la tipografía. Evita saltos de línea manuales innecesarios; el renderer sí los respetará si el editor los introduce.
+Las cantidades de palabras son orientativas, no garantías de ajuste visual. Solo el renderer mide el ancho y la altura reales de los textos.
+
+Si el contenido no cabe, el editor podrá acortarlo o repartirlo entre más slides. El renderer no reducirá automáticamente la tipografía.
+
+Evita saltos de línea manuales innecesarios; el renderer sí los respetará si el editor los introduce.
 
 ### 7. Imágenes
 
