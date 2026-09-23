@@ -48,13 +48,14 @@ window.EC.Project = {
 
     return {
       project_version: "1.0",
-      renderer_version: "0.3.4",
+      renderer_version: "0.3.8",
       job: updatedJob,
       assignments: project.items.map((item) => {
         const assignment = project.assignments.get(item.id);
         return {
           item_id: item.id,
           filename: assignment?.filename || "",
+          is_placeholder: Boolean(assignment?.is_placeholder),
           zoom: assignment?.zoom ?? 1,
           x: assignment?.x ?? 0,
           y: assignment?.y ?? 0

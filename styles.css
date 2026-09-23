@@ -114,3 +114,18 @@ button{border:0;border-radius:9px;padding:12px 14px;background:#111;color:#fff;f
 .image-adjustments + .slide-body{
   padding-top:14px;
 }
+
+/* v0.3.8 — optional interior title */
+.title-editor{
+  display:block;width:100%;min-height:42px;border:1px solid var(--line);
+  border-radius:9px;padding:10px 12px;background:#fff;color:var(--ink);
+  font:14px/1.4 Arial,Helvetica,sans-serif;margin-bottom:6px;
+}
+.title-editor:focus{outline:2px solid rgba(252,199,22,.45);border-color:#c9a007}
+.field-help{font-size:11px;color:var(--muted);margin:0 0 17px;line-height:1.4}
+
+.optional-title-control { margin:0 0 14px; }
+.optional-title-heading { display:flex;align-items:center;justify-content:space-between;gap:12px; }
+.optional-title-heading label { margin:0; }
+.add-title-button, .remove-title-button { width:auto; min-width:0; padding:7px 11px; font-size:12px; border-radius:7px; }
+.add-title-button { border:1px dashed #9ca3af; color:var(--ink); background:var(--soft); }

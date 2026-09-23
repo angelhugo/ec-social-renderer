@@ -15,21 +15,32 @@ window.EC.Renderer = {
   },
 
   wrapLines(ctx, text, maxWidth) {
-    const words = String(text || "").trim().split(/\s+/).filter(Boolean);
+    // Respect manual Enter: each paragraph starts on a new rendered line.
+    // Empty interior paragraphs deliberately consume a line as well.
+    const paragraphs = String(text ?? "")
+      .replace(/\r\n?/g, "\n")
+      .trim()
+      .split("\n");
     const lines = [];
-    let line = "";
 
-    for (const word of words) {
-      const test = line ? `${line} ${word}` : word;
-      if (ctx.measureText(test).width <= maxWidth) {
-        line = test;
-      } else {
-        if (line) lines.push(line);
-        line = word;
+    for (const paragraph of paragraphs) {
+      const words = paragraph.trim().split(/\s+/).filter(Boolean);
+      if (!words.length) {
+        lines.push("");
+        continue;
       }
+      let line = "";
+      for (const word of words) {
+        const candidate = line ? `${line} ${word}` : word;
+        if (ctx.measureText(candidate).width <= maxWidth || !line) {
+          line = candidate;
+        } else {
+          lines.push(line);
+          line = word;
+        }
+      }
+      if (line) lines.push(line);
     }
-
-    if (line) lines.push(line);
     return lines;
   },
 

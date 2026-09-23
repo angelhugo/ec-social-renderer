@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0",
+  "template": "EC_IG_GALERIA_01",
+  "source_url": "https://elcomercio.pe/ejemplo-de-prueba/",
+  "network": "instagram",
+  "format": "fotogaleria",
+  "approach": "Explicativo",
+  "objective": "Informar",
+  "slides": [
+    {
+      "id": 1,
+      "type": "cover",
+      "text": "Prueba de título opcional en fotogalerías",
+      "image_hint": "Fotografía principal relacionada con la nota"
+    },
+    {
+      "id": 2,
+      "type": "content",
+      "title": "Primer eje de la noticia",
+      "text": "Este slide muestra un encabezado independiente y un párrafo de explicación. Puedes editar ambos campos y comprobar cómo la plantilla adapta sus tamaños y separaciones.",
+      "image_hint": "Imagen que represente el primer eje"
+    },
+    {
+      "id": 3,
+      "type": "content",
+      "text": "Este slide no tiene título. El cuerpo empieza en el mismo margen superior que el slide anterior y utiliza todo el ancho disponible. El renderer conserva las reglas del diseño sin mostrar un espacio vacío para el título.",
+      "image_hint": "Fotografía de contexto"
+    },
+    {
+      "id": 4,
+      "type": "content",
+      "title": "Otro eje",
+      "text": "El editor puede agregar o borrar el título sin tener que volver a generar el JSON. Un salto de línea manual\ntambién se conserva en la vista previa.",
+      "image_hint": "Imagen ilustrativa del segundo eje"
+    }
+  ],
+  "caption": "Ejemplo técnico para comprobar campos opcionales, saltos manuales y validación de la plantilla."
+}

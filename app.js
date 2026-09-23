@@ -1,5 +1,5 @@
 (() => {
-  window.EC_RENDERER_VERSION = "0.3.7";
+  window.EC_RENDERER_VERSION = "0.3.8";
   const state = {
     project: null,
     template: null,
@@ -270,7 +270,7 @@
 
         <div class="card-actions">
           <button class="secondary" data-role="reset-text" type="button">
-            Restaurar texto
+            ${item.type === "cover" ? "Restaurar texto" : "Restaurar textos"}
           </button>
 
           <button class="secondary" data-role="download" type="button">
@@ -285,24 +285,39 @@
   }
 
   function renderField(field, item) {
-    if (field.type !== "textarea") return "";
-
     const value = item[field.key] || "";
-
-    return `
-      <label>${esc(field.label)}</label>
-
-      <textarea
-        class="text-editor"
-        data-field="${esc(field.key)}"
-        spellcheck="true"
-      >${esc(value)}</textarea>
-
-      <div class="char-row">
-        <span>${esc(field.help || "")}</span>
-        <span data-role="char-count">${String(value).length}</span>
-      </div>
-    `;
+    if (field.type === "input") {
+      const hasValue = Boolean(String(value).trim());
+      return `
+        <div class="optional-title-control">
+          <button type="button" data-role="add-title"
+            class="add-title-button secondary ${hasValue ? "hidden" : ""}">+ Añadir título</button>
+          <div data-role="title-field" class="${hasValue ? "" : "hidden"}">
+            <div class="optional-title-heading">
+              <label for="field-${item.id}-${esc(field.key)}">${esc(field.label)}</label>
+              <button type="button" data-role="remove-title" class="remove-title-button secondary">Quitar título</button>
+            </div>
+            <input class="title-editor" type="text"
+              id="field-${item.id}-${esc(field.key)}"
+              data-field="${esc(field.key)}"
+              placeholder="${esc(field.placeholder || "")}" value="${esc(value)}">
+            <p class="field-help">${esc(field.help || "")}</p>
+          </div>
+        </div>
+      `;
+    }
+    if (field.type === "textarea") {
+      return `
+        <label for="field-${item.id}-${esc(field.key)}">${esc(field.label)}</label>
+        <textarea class="text-editor" id="field-${item.id}-${esc(field.key)}"
+          data-field="${esc(field.key)}" spellcheck="true">${esc(value)}</textarea>
+        <div class="char-row">
+          <span>${esc(field.help || "")}</span>
+          <span data-role="char-count">${String(value).length}</span>
+        </div>
+      `;
+    }
+    return "";
   }
 
   function imageLabelText(assignment) {
@@ -400,6 +415,15 @@
     `;
   }
 
+  function syncOptionalTitleControl(card, item) {
+    const add = card.querySelector('[data-role="add-title"]');
+    const panel = card.querySelector('[data-role="title-field"]');
+    if (!add || !panel) return;
+    const hasTitle = Boolean(item.title?.trim());
+    add.classList.toggle("hidden", hasTitle);
+    panel.classList.toggle("hidden", !hasTitle);
+  }
+
   function bindCard(card, item) {
     for (const field of state.format.getEditableFields(item)) {
       const input = card.querySelector(`[data-field="${field.key}"]`);
@@ -419,6 +443,26 @@
         updateGlobalStatus();
       });
     }
+
+    const addTitleButton = card.querySelector('[data-role="add-title"]');
+    const removeTitleButton = card.querySelector('[data-role="remove-title"]');
+    const titleInput = card.querySelector('[data-field="title"]');
+
+    addTitleButton?.addEventListener("click", () => {
+      addTitleButton.classList.add("hidden");
+      card.querySelector('[data-role="title-field"]').classList.remove("hidden");
+      titleInput?.focus();
+    });
+    removeTitleButton?.addEventListener("click", () => {
+      item.title = "";
+      if (titleInput) titleInput.value = "";
+      syncOptionalTitleControl(card, item);
+      renderItem(item.id);
+      updateGlobalStatus();
+    });
+    titleInput?.addEventListener("blur", () => {
+      if (!item.title?.trim()) syncOptionalTitleControl(card, item);
+    });
 
     const photoInput = card.querySelector('[data-role="photo"]');
 
@@ -474,9 +518,13 @@
       () => {
         if ("original_text" in item) {
           item.text = item.original_text;
+          if (item.type === "content") item.title = item.original_title || "";
 
           const input = card.querySelector('[data-field="text"]');
           if (input) input.value = item.original_text;
+          const titleInput = card.querySelector('[data-field="title"]');
+          if (titleInput) titleInput.value = item.title;
+          syncOptionalTitleControl(card, item);
 
           card.querySelector('[data-role="char-count"]').textContent =
             item.text.length;
@@ -494,6 +542,12 @@
       "click",
       async () => {
         const canvas = card.querySelector('[data-role="canvas"]');
+        const currentImage = state.project.assignments.get(item.id);
+        const valid = state.template.validate({ ctx: canvas.getContext("2d"), item }).ok;
+        if (!valid || !currentImage?.image || currentImage.is_placeholder) {
+          alert("Antes de descargar, corrige el texto y reemplaza la imagen de ejemplo.");
+          return;
+        }
 
         await window.EC.Export.downloadCanvas(
           canvas,
@@ -537,6 +591,9 @@
       !state.format.usesImage(item) || !!assignment?.image;
 
     const status = card.querySelector('[data-role="status"]');
+    const pngButton = card.querySelector('[data-role="download"]');
+    if (pngButton) pngButton.disabled =
+      !validation.ok || !assignment?.image || Boolean(assignment?.is_placeholder);
 
     if (!validation.ok) {
       status.textContent = `⚠ OVERFLOW: ${validation.message}`;
@@ -685,6 +742,7 @@
       {
         id: 2,
         type: "content",
+        title: "Cambios en la movilidad",
         text: "La movilidad urbana está cambiando por nuevas rutas, mayor uso del transporte público y ajustes en la infraestructura vial. Estos cambios buscan reducir tiempos de viaje y ordenar mejor el tránsito en zonas congestionadas.",
         image_hint: "Bus de transporte público circulando por una avenida principal de Lima"
       },
@@ -697,6 +755,7 @@
       {
         id: 4,
         type: "content",
+        title: "Prueba de overflow",
         text: "Este slide está hecho deliberadamente más largo para probar el sistema de overflow del renderer. Si supera ocho líneas, debe aparecer una advertencia y la exportación debe bloquearse hasta que el editor lo acorte.",
         image_hint: "Tráfico intenso en una avenida de Lima durante hora punta"
       },
